@@ -57,14 +57,14 @@ class GitHubEvent(object):
 
     @staticmethod
     def mod_comment_for_pivotal(text, poster):
-        before = 'GitHub comment by **{}**:\n\n'.format(poster)
+        before = '*GitHub comment by **{}***:\n\n'.format(poster)
         return before + text
 
     @staticmethod
     def mod_description_for_pivotal(text, repo, issue_number, poster):
         """Modifies description to display a Github link to this issue
         """
-        before = 'GitHub issue opened by **{}**:\n\n'.format(poster)
+        before = '*GitHub issue opened by **{}***:\n\n'.format(poster)
         after_template = '\n\nGitHub Issue [#{num}](https://github.com/rentjungle/{repo}/issues/{num})'
         after = after_template.format(repo=repo, num=issue_number)
         return before + text + after
