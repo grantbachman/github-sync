@@ -2,10 +2,17 @@ import context
 import pytest
 import app
 import json
-from models import Pivotal, Issue
+from models import Pivotal, GitHubEvent
 import mock
 import unittest
 
+class TestGitHubEvent(object):
+
+    def test_get_pivotal_ids(self):
+        text = ('blah``` Pivotal Story [#134395067](https://www'
+                '.pivotaltracker.com/projects/922132/stories/134395067) blah')
+        ret = GitHubEvent._get_pivotal_ids(text)
+        assert ret == (922132, 134395067)
 
 
 class TestPivotal(object):

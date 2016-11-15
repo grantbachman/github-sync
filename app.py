@@ -16,9 +16,15 @@ def github_issue():
         pass
 
     if event['action'] == 'opened':
-        g.handle_opened_issue()
+        g.handle_issue_opened()
+    if event['action'] == 'created':
+        g.handle_issue_comment_created()
     return "Thanks."
 
+
+@app.route('/pivotal/hook', methods=['POST'])
+def pivotal_story():
+    return 'Hi'
 
 
 if __name__ == '__main__':
