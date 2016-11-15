@@ -15,6 +15,7 @@ class Pivotal(object):
 
     def __init__(self, token=None):
         self.token = token
+        self.headers = {'X-TrackerToken': self.token, 'Content-Type': 'application/json'}
 
     def create_story(self, issue, project_id):
         """
@@ -26,8 +27,7 @@ class Pivotal(object):
             'name': issue.title,
             'description': issue.description
         }
-        headers = {'X-TrackerToken': self.token, 'Content-Type': 'application/json'}
         url = '{}/projects/{}/stories'.format(self.BASE_URL, project_id)
-        resp = requests.post(url=url, headers=headers, data=json.dumps(to_post))
+        resp = requests.post(url=url, headers=self.headers, data=json.dumps(to_post))
         return resp
 

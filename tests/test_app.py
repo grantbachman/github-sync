@@ -24,7 +24,7 @@ class TestPivotal(object):
         p.create_story(issue, 1)
         posted_data = json.dumps({'name': 'Title', 'description': 'Description'})
         mock_post.assert_called_with(url=Pivotal.BASE_URL + '/projects/1/stories',
-                                     headers={'X-TrackerToken': 'token', 'Content-Type': 'application/json'},
+                                     headers=p.headers,
                                      data=posted_data)
 
 
