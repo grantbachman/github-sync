@@ -23,7 +23,7 @@ class GitHubEvent(object):
         issue_number = self.event['issue']['number']
 
         # send to pivotal
-        piv_description = self.mod_description_for_pivotal(description, repo, issue_number)
+        piv_description = self.mod_description_for_pivotal(description, repo, issue_number, poster)
         piv = Pivotal(token=config.PIVOTAL_TOKEN)
         piv_project_id = config.project_mappings[repo]
         resp = piv.create_story(piv_project_id, title, piv_description)
@@ -37,12 +37,13 @@ class GitHubEvent(object):
         issue.edit(body=self.mod_description_for_github(description, piv_story_id))
 
     @staticmethod
-    def mod_description_for_pivotal(text, repo, issue_number):
+    def mod_description_for_pivotal(text, repo, issue_number, poster):
         """Modifies description to display a Github link to this issue
         """
-        template = '\n\nGitHub Issue [#{num}](https://github.com/rentjungle/{repo}/issues/{num})'
-        tag = template.format(repo=repo, num=issue_number)
-        return text + tag
+        before = 'GitHub issue opened by **{}**\n\n'.format(poster)
+        after_template = '\n\nGitHub Issue [#{num}](https://github.com/rentjungle/{repo}/issues/{num})'
+        after = after_template.format(repo=repo, num=issue_number)
+        return before + text + after
 
     @staticmethod
     def mod_description_for_github(text, story_id):
