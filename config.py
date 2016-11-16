@@ -15,6 +15,6 @@ _project_mappings = {
 
 # Reverse keys/values for easy lookup
 project_mappings = {}
-for key, value in _project_mappings.iteritems():
+for key, value in _project_mappings.items():
     project_mappings[key] = value
     project_mappings[value] = key
