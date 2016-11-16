@@ -18,6 +18,8 @@ def github_issue():
             g.handle_issue_opened()
         if event['action'] == 'created':
             g.handle_issue_comment_created()
+        if event['action'] == 'closed':
+            g.handle_issue_closed()
     elif event_type == 'create' and event.get('ref_type') == 'branch':
         g.handle_branch_create()
 

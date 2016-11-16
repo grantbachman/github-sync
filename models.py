@@ -10,6 +10,7 @@ import json
 from github3 import GitHub
 import re
 
+
 class GitHubEvent(object):
 
     def __init__(self, event=None):
@@ -46,6 +47,13 @@ class GitHubEvent(object):
         if issue.closed_at is None:
             p = Pivotal(token=config.PIVOTAL_TOKEN)
             p.change_status(pivotal_project, pivotal_story, status='started', estimate=1)
+
+    def handle_issue_closed(self):
+        # If issue is closed, deliver the pivotal story
+        issue_body = self.event['issue']['body']
+        project_id, story_id = self._get_pivotal_ids(issue_body)
+        p = Pivotal(token=config.PIVOTAL_TOKEN)
+        p.change_status(project_id, story_id, status='delivered')
 
     def handle_issue_opened(self):
         # parse event
