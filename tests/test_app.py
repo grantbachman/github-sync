@@ -14,6 +14,11 @@ class TestGitHubEvent(object):
         ret = GitHubEvent._get_pivotal_ids(text)
         assert ret == (922132, 134395067)
 
+    def test__get_issue_from_branch(self):
+        branch_name = '123-branch-name'
+        assert GitHubEvent._get_issue_from_branch(branch_name) == 123
+        branch_name = '123_branch_name'
+        assert GitHubEvent._get_issue_from_branch(branch_name) == 123
 
 class TestPivotal(object):
 
@@ -37,3 +42,12 @@ class TestPivotal(object):
                                      headers=p.headers,
                                      data=posted_data)
 
+    @mock.patch('requests.put')
+    def test_change_story_status(self, mock_post):
+        p = Pivotal(token='token')
+        p.change_status(1, 1, 'started')
+
+        put_data = json.dumps({'current_state': 'started', 'estimate': 1})
+        mock_post.assert_called_with(url=Pivotal.BASE_URL + '/projects/1/stories/1',
+                                     headers=p.headers,
+                                     data=put_data)

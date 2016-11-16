@@ -1,15 +1,51 @@
+"""
+Notes on how GitHub issues map to Pivotal stories:
+issue opened --> story created
+branch created that starts with issue number --> story started
+issue closed --> story delivered (up to manager to accept/reject)
+"""
 import requests
 import config
 import json
 from github3 import GitHub
 import re
 
-
 class GitHubEvent(object):
 
     def __init__(self, event=None):
         self.event = event
         self.owner = 'rentjungle'
+
+    @staticmethod
+    def _get_issue_from_branch(branch_name):
+        results = re.search('(\d+)[-_]', branch_name)
+        if results:
+            return int(results.groups()[0])
+        return None
+
+    def handle_branch_create(self):
+        """A Created branch that starts with a number (and an issue is open
+        with that number), we should set the pivotal story to Started
+        """
+        branch_name = self.event['ref']
+        issue_num = self._get_issue_from_branch(branch_name)
+
+        # Ensure an issue is being referenced by the branch
+        if issue_num is None:
+            return None
+
+        repo_name = self.event['repository']['name']
+        g = GitHub(token=config.GITHUB_TOKEN)
+        repo = g.repository(self.owner, repo_name)
+
+        # Get pivotal id's from issue body
+        issue = repo.issue(issue_num)
+        pivotal_project, pivotal_story = self._get_pivotal_ids(issue.body)
+
+        # Ensure the issue is still open before changing status
+        if issue.closed_at is None:
+            p = Pivotal(token=config.PIVOTAL_TOKEN)
+            p.change_status(pivotal_project, pivotal_story, status='started', estimate=1)
 
     def handle_issue_opened(self):
         # parse event
@@ -54,6 +90,7 @@ class GitHubEvent(object):
         p = Pivotal(token=config.PIVOTAL_TOKEN)
         piv_comment_body = self.mod_comment_for_pivotal(comment_body, poster)
         p.create_comment(project_id, story_id, piv_comment_body)
+
 
     @staticmethod
     def mod_comment_for_pivotal(text, poster):
@@ -110,5 +147,10 @@ class Pivotal(object):
         post = {'text': text}
         url = '{}/projects/{}/stories/{}/comments'.format(self.BASE_URL, project_id, story_id)
         return requests.post(url=url, headers=self.headers, data=json.dumps(post))
+
+    def change_status(self, project_id, story_id, status='started', estimate=1):
+        put = {'current_state': status, 'estimate': estimate}
+        url = '{}/projects/{}/stories/{}'.format(self.BASE_URL, project_id, story_id)
+        return requests.put(url=url, headers=self.headers, data=json.dumps(put))
 
 

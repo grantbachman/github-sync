@@ -12,13 +12,15 @@ def github_issue():
     g = GitHubEvent(event)
 
     # only handle issue events for now
-    if request.headers.get('X-GitHub-Event') != 'issues':
-        pass
+    event_type = request.headers.get('X-GitHub-Event')
+    if event_type == 'issues':
+        if event['action'] == 'opened':
+            g.handle_issue_opened()
+        if event['action'] == 'created':
+            g.handle_issue_comment_created()
+    elif event_type == 'create' and event.get('ref_type') == 'branch':
+        g.handle_branch_create()
 
-    if event['action'] == 'opened':
-        g.handle_issue_opened()
-    if event['action'] == 'created':
-        g.handle_issue_comment_created()
     return "Thanks."
 
 
