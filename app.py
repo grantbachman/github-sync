@@ -1,4 +1,4 @@
-from flask import Flask, request
+from flask import Flask, request, abort
 from models import GitHubEvent
 
 
@@ -29,7 +29,12 @@ def github_issue():
 
 @app.route('/hooks/github', methods=['POST'])
 def pivotal_story():
-    return 'Hi'
+    return abort(501)
+
+
+@app.route('/', methods=['GET'])
+def root():
+    return 'Hello, World.'
 
 
 if __name__ == '__main__':
