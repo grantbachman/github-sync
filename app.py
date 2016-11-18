@@ -5,7 +5,7 @@ from models import GitHubEvent
 app = Flask(__name__)
 
 
-@app.route('/github/hook', methods=['POST'])
+@app.route('/hooks/github', methods=['POST'])
 def github_issue():
     event = request.get_json()
 
@@ -13,12 +13,13 @@ def github_issue():
 
     # only handle issue events for now
     event_type = request.headers.get('X-GitHub-Event')
+    action = event.get('action')
     if event_type == 'issues':
-        if event['action'] == 'opened':
+        if action == 'opened':
             g.handle_issue_opened()
-        if event['action'] == 'created':
+        elif action == 'created':
             g.handle_issue_comment_created()
-        if event['action'] == 'closed':
+        elif action == 'closed':
             g.handle_issue_closed()
     elif event_type == 'create' and event.get('ref_type') == 'branch':
         g.handle_branch_create()
@@ -26,7 +27,7 @@ def github_issue():
     return "Thanks."
 
 
-@app.route('/pivotal/hook', methods=['POST'])
+@app.route('/hooks/github', methods=['POST'])
 def pivotal_story():
     return 'Hi'
 
