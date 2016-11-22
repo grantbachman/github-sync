@@ -23,11 +23,12 @@ def github_issue():
             g.handle_issue_closed()
     elif event_type == 'create' and event.get('ref_type') == 'branch':
         g.handle_branch_create()
-
+    else:
+        return "Unrecognized action."
     return "Thanks."
 
 
-@app.route('/hooks/github', methods=['POST'])
+@app.route('/hooks/pivotal', methods=['POST'])
 def pivotal_story():
     return abort(501)
 
